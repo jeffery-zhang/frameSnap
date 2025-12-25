@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>FrameSnap - High-Quality Video Frame Extractor & Snapshot Tool</title>
+    <meta name="description" content="FrameSnap is a powerful, browser-based tool to extract high-quality images from any video frame. Precise timestamp selection, instant downloads, and 100% private processing.">
+    <meta name="keywords" content="video frame extractor, video to image, extract frames from video, video snapshot, frame grabber, online video tool, MP4 frame extractor">
+    <meta name="author" content="jefferyzhang1013@gmail.com">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://framesnap.zhj13.top/">
+    <meta property="og:title" content="FrameSnap - Extract High-Quality Frames from Video">
+    <meta property="og:description" content="Capture any moment from your videos as a high-resolution image instantly. Simple, fast, and secure.">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://framesnap.zhj13.top/">
+    <meta property="twitter:title" content="FrameSnap - Video Frame Extractor">
+    <meta property="twitter:description" content="The easiest way to grab frames from videos directly in your browser.">
+
+    <!-- Theme and Styling -->
+    <meta name="theme-color" content="#2563eb">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --error: #ef4444;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+        }
+
+        /* Upload Area */
+        .card {
+            background: var(--card);
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 0.75rem;
+            padding: 3rem 1rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background: #fafafa;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: #f0f7ff;
+        }
+
+        .upload-zone svg {
+            width: 48px;
+            height: 48px;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Controls Area */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-item {
+            background: var(--bg);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .meta-value {
+            font-family: monospace;
+            font-size: 1.125rem;
+            color: var(--text-main);
+        }
+
+        .input-group {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .error-msg {
+            background: #fef2f2;
+            color: var(--error);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            border: 1px solid #fee2e2;
+        }
+
+        /* Gallery */
+        .gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .frame-card {
+            background: white;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .frame-img-container {
+            aspect-ratio: 16/9;
+            background: #000;
+            position: relative;
+        }
+
+        .frame-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .frame-info {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .frame-ts {
+            font-family: monospace;
+            font-weight: 600;
+        }
+
+        .download-link {
+            text-decoration: none;
+            color: var(--primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        footer {
+            margin-top: 4rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>FrameSnap</h1>
+            <p>Professional Video Frame Extraction Tool</p>
+        </header>
+
+        <main id="app">
+            <!-- Upload View -->
+            <section id="upload-view" class="card">
+                <div id="drop-zone" class="upload-zone">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    <p><strong>Click to upload</strong> or drag and drop video</p>
+                    <p style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--text-muted);">Fast, secure, and browser-native processing.</p>
+                    <input type="file" id="file-input" class="hidden" accept="video/*">
+                </div>
+                <div id="error-container" class="error-msg hidden"></div>
+            </section>
+
+            <!-- Editor View -->
+            <section id="editor-view" class="card hidden">
+                <div class="controls-grid">
+                    <div class="meta-item">
+                        <span class="meta-label">File Name</span>
+                        <div id="meta-name" class="meta-value">-</div>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Total Duration</span>
+                        <div id="meta-duration" class="meta-value">00:00</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="meta-label">Select Frame Timestamp (Seconds)</label>
+                    <div class="input-row">
+                        <input type="number" id="ts-number" step="0.1" value="0" min="0">
+                        <button id="extract-btn">
+                            <svg style="width:18px;height:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            Extract Image
+                        </button>
+                        <button id="reset-btn" style="background: #64748b;">New Video</button>
+                    </div>
+                    <input type="range" id="ts-range" step="0.01" value="0">
+                </div>
+            </section>
+
+            <!-- Gallery View -->
+            <section id="gallery-view" class="hidden">
+                <div class="gallery-header">
+                    <h3>Captured Snapshots</h3>
+                    <span id="frame-count" style="color: var(--text-muted); font-size: 0.875rem;">0 items</span>
+                </div>
+                <div id="gallery-grid" class="gallery-grid"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 FrameSnap. Built for speed and privacy. No files leave your device.</p>
+        </footer>
+    </div>
+
+    <script>
+        /**
+         * VideoProcessor Service (OOP)
+         * Logic for decoding video and drawing to canvas
+         */
+        class VideoProcessor {
+            constructor() {
+                this.video = document.createElement('video');
+                this.canvas = document.createElement('canvas');
+                this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
+                this.video.muted = true;
+                this.video.playsInline = true;
+                this.video.preload = 'auto';
+            }
+
+            async load(file) {
+                if (!file.type.startsWith('video/')) {
+                    throw new Error('Please upload a valid video file.');
+                }
+
+                return new Promise((resolve, reject) => {
+                    const url = URL.createObjectURL(file);
+                    this.video.src = url;
+
+                    this.video.onloadedmetadata = () => {
+                        this.canvas.width = this.video.videoWidth;
+                        this.canvas.height = this.video.videoHeight;
+                        resolve({
+                            duration: this.video.duration,
+                            width: this.video.videoWidth,
+                            height: this.video.videoHeight
+                        });
+                    };
+
+                    this.video.onerror = () => reject(new Error('Failed to load video. Ensure the file format is supported by your browser.'));
+                });
+            }
+
+            async capture(timestamp) {
+                return new Promise((resolve) => {
+                    this.video.currentTime = Math.max(0, Math.min(timestamp, this.video.duration));
+                    
+                    const onSeeked = () => {
+                        this.video.removeEventListener('seeked', onSeeked);
+                        this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+                        resolve(this.canvas.toDataURL('image/png'));
+                    };
+
+                    this.video.addEventListener('seeked', onSeeked);
+                });
+            }
+
+            reset() {
+                if (this.video.src) URL.revokeObjectURL(this.video.src);
+                this.video.src = '';
+            }
+        }
+
+        /**
+         * Main Application Controller (OOP)
+         */
+        class FrameSnapApp {
+            constructor() {
+                this.processor = new VideoProcessor();
+                this.frames = [];
+                this.duration = 0;
+
+                // Cache DOM elements
+                this.els = {
+                    uploadView: document.getElementById('upload-view'),
+                    editorView: document.getElementById('editor-view'),
+                    galleryView: document.getElementById('gallery-view'),
+                    dropZone: document.getElementById('drop-zone'),
+                    fileInput: document.getElementById('file-input'),
+                    errorContainer: document.getElementById('error-container'),
+                    metaName: document.getElementById('meta-name'),
+                    metaDuration: document.getElementById('meta-duration'),
+                    tsNumber: document.getElementById('ts-number'),
+                    tsRange: document.getElementById('ts-range'),
+                    extractBtn: document.getElementById('extract-btn'),
+                    resetBtn: document.getElementById('reset-btn'),
+                    galleryGrid: document.getElementById('gallery-grid'),
+                    frameCount: document.getElementById('frame-count')
+                };
+
+                this.init();
+            }
+
+            init() {
+                // Event Listeners
+                this.els.dropZone.onclick = () => this.els.fileInput.click();
+                this.els.fileInput.onchange = (e) => this.handleFile(e.target.files[0]);
+                
+                this.els.tsNumber.oninput = (e) => this.syncTimestamp(e.target.value, 'number');
+                this.els.tsRange.oninput = (e) => this.syncTimestamp(e.target.value, 'range');
+                
+                this.els.extractBtn.onclick = () => this.handleCapture();
+                this.els.resetBtn.onclick = () => this.reset();
+
+                // Drag & Drop
+                this.els.dropZone.ondragover = (e) => { e.preventDefault(); this.els.dropZone.style.borderColor = 'var(--primary)'; };
+                this.els.dropZone.ondragleave = () => { this.els.dropZone.style.borderColor = 'var(--border)'; };
+                this.els.dropZone.ondrop = (e) => {
+                    e.preventDefault();
+                    this.handleFile(e.dataTransfer.files[0]);
+                };
+            }
+
+            async handleFile(file) {
+                if (!file) return;
+                this.hideError();
+
+                try {
+                    const meta = await this.processor.load(file);
+                    this.duration = meta.duration;
+                    
+                    // Update UI
+                    this.els.metaName.textContent = file.name;
+                    this.els.metaDuration.textContent = this.formatTime(meta.duration);
+                    
+                    this.els.tsNumber.max = meta.duration;
+                    this.els.tsRange.max = meta.duration;
+                    this.els.tsNumber.value = 0;
+                    this.els.tsRange.value = 0;
+
+                    this.els.uploadView.classList.add('hidden');
+                    this.els.editorView.classList.remove('hidden');
+                    this.els.galleryView.classList.remove('hidden');
+                } catch (err) {
+                    this.showError(err.message);
+                }
+            }
+
+            syncTimestamp(val, source) {
+                let numericVal = parseFloat(val) || 0;
+                numericVal = Math.min(Math.max(0, numericVal), this.duration);
+                
+                if (source === 'number') this.els.tsRange.value = numericVal;
+                else this.els.tsNumber.value = numericVal;
+            }
+
+            async handleCapture() {
+                const ts = parseFloat(this.els.tsNumber.value);
+                this.els.extractBtn.disabled = true;
+                this.els.extractBtn.textContent = 'Processing...';
+
+                try {
+                    const dataUrl = await this.processor.capture(ts);
+                    this.addFrame(ts, dataUrl);
+                } catch (err) {
+                    this.showError('Capture failed: ' + err.message);
+                } finally {
+                    this.els.extractBtn.disabled = false;
+                    this.els.extractBtn.innerHTML = `
+                        <svg style="width:18px;height:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Extract Image
+                    `;
+                }
+            }
+
+            addFrame(ts, dataUrl) {
+                const id = Date.now();
+                this.frames.unshift({ id, ts, dataUrl });
+                this.renderGallery();
+            }
+
+            renderGallery() {
+                this.els.frameCount.textContent = `${this.frames.length} items`;
+                this.els.galleryGrid.innerHTML = this.frames.map(f => `
+                    <div class="frame-card">
+                        <div class="frame-img-container">
+                            <img src="${f.dataUrl}" alt="Frame snapshot from video at ${f.ts} seconds">
+                        </div>
+                        <div class="frame-info">
+                            <span class="frame-ts">${f.ts.toFixed(2)}s</span>
+                            <a href="${f.dataUrl}" download="frame_${f.ts.toFixed(2)}.png" class="download-link">Download PNG</a>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            reset() {
+                this.processor.reset();
+                this.frames = [];
+                this.renderGallery();
+                this.els.fileInput.value = '';
+                this.els.uploadView.classList.remove('hidden');
+                this.els.editorView.classList.add('hidden');
+                this.els.galleryView.classList.add('hidden');
+            }
+
+            formatTime(sec) {
+                const m = Math.floor(sec / 60);
+                const s = Math.floor(sec % 60);
+                return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }
+
+            showError(msg) {
+                this.els.errorContainer.textContent = msg;
+                this.els.errorContainer.classList.remove('hidden');
+            }
+
+            hideError() {
+                this.els.errorContainer.classList.add('hidden');
+            }
+        }
+
+        // Initialize App on load
+        window.addEventListener('DOMContentLoaded', () => {
+            new FrameSnapApp();
+        });
+    </script>
+</body>
+</html>
